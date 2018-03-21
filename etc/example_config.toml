@@ -1,0 +1,17 @@
+[variables]
+mode='debug'
+
+[command.echo]
+exec="echo 0: {0}, all: {@}, len: {#}, none: {none} mode: {mode}"
+help="This is just a test"
+
+[command.echoenv]
+exec="echo env: {env[ALFRED_TEST]} %userprofile% %ALFRED_TEST%"
+help="This is just a test"
+
+[command.v]
+exec="vim"
+
+[command.nofmt]
+exec="echo 'Do not format this str: {str}"
+format=false
