@@ -1,16 +1,16 @@
 ======
-Alfred
+Alfred Cmd
 ======
 
 
-.. image:: https://img.shields.io/pypi/v/alfred.svg
-        :target: https://pypi.python.org/pypi/alfred
+.. image:: https://img.shields.io/pypi/v/alfredcmd.svg
+        :target: https://pypi.python.org/pypi/alfredcmd
 
-.. image:: https://img.shields.io/travis/GustavoKatel/alfred.svg
-        :target: https://travis-ci.org/GustavoKatel/alfred
+.. image:: https://img.shields.io/travis/GustavoKatel/alfredcmd.svg
+        :target: https://travis-ci.org/GustavoKatel/alfredcmd
 
-.. image:: https://readthedocs.org/projects/alfred/badge/?version=latest
-        :target: https://alfred.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/alfredcmd/badge/?version=latest
+        :target: https://alfredcmd.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 
@@ -20,7 +20,7 @@ Aliases and custom commands sharing
 
 
 * Free software: MIT license
-* Documentation: https://alfred.readthedocs.io.
+* Documentation: https://alfredcmd.readthedocs.io.
 
 
 Features
