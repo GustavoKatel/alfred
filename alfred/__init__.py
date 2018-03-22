@@ -32,11 +32,11 @@ class Alfred:
             self._config.setdefault('variables', {})
 
     def run(self, args):
-        if len(args) >= 1 and args[0] == 'help':
+        if len(args) >= 1 and args[0] == '@help':
             if len(args) > 1:
                 return self.processHelpCommand(args)
             else:
-                print 'help'
+                print('help')
             return 0
 
         return self.processCommand(args)
@@ -70,9 +70,9 @@ class Alfred:
         cmd = self._getCommand(args[1:])
 
         try:
-            print cmd['help']
+            print(cmd['help'])
         except KeyError:
-            print cmd['exec']
+            print(cmd['exec'])
 
     def _buildArgDict(self, args):
         argsDict = defaultdict(unicode)
@@ -126,7 +126,7 @@ class Alfred:
             cmdLine = fmt.format(cmdLine, argsDict)
 
         if 'echo' in cmd and cmd['echo']:
-            print cmdLine
+            print(cmdLine)
 
         process = subprocess.Popen(
             cmdLine,
