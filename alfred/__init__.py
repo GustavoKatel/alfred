@@ -53,12 +53,18 @@ class Alfred:
             raise Exception('no command')
 
         cmd.setdefault('format', True)
+        cmd.setdefault('type', 'shell')
         return cmd
 
     def processCommand(self, args):
         cmd = self._getCommand(args)
 
-        self._execute(cmd, args[1:])
+        if cmd['type'] == 'shell':
+            self._executeShell(cmd, args[1:])
+        elif cmd['type'] == 'python':
+            self._executePy(cmd, args[1:])
+        else:
+            raise Exception('Invalid command type: {}'.format(cmd['type']))
 
     def processHelpCommand(self, args):
         cmd = self._getCommand(args[1:])
@@ -68,7 +74,7 @@ class Alfred:
         except KeyError:
             print cmd['exec']
 
-    def _execute(self, cmd, args):
+    def _buildArgDict(self, args):
         argsDict = defaultdict(unicode)
         for i, arg in enumerate(args):
             argsDict[i] = arg
@@ -80,6 +86,39 @@ class Alfred:
         argsDict['@'] = ' '.join(args)
         argsDict['#'] = len(args)
         argsDict['env'] = os.environ
+
+        return argsDict
+
+    def _executePy(self, cmd, args):
+        if 'type' in cmd and not cmd['type'] == 'python':
+            raise Exception('Invalid command type. Expected "python" Received: {}'.format(cmd['type']))
+
+        argsDict = self._buildArgDict(args)
+
+        cmdLine = cmd['exec']
+        try:
+            filename, funcname = cmdLine.split('::')
+        except ValueError:
+            raise Exception('Invalid execution of python script "{}". Please use the format: "script.py::FuncName"'.format(cmdLine))
+
+        filename = os.path.expanduser(filename)
+        import module_importer
+        module = module_importer.importModuleFromFile('script', filename)
+        if not hasattr(module, funcname):
+            raise Exception('Function "{}" was not found in module "{}"'.format(funcname, filename))
+
+        try:
+            func = getattr(module, funcname)
+            func(argsDict)
+        except Exception as e:
+            raise Exception('Error trying to execute module', e)
+
+
+    def _executeShell(self, cmd, args):
+        if 'type' in cmd and not cmd['type'] == 'shell':
+            raise Exception('Invalid command type. Expected "shell" Received: {}'.format(cmd['type']))
+
+        argsDict = self._buildArgDict(args)
 
         cmdLine = cmd['exec']
         if 'format' in cmd and cmd['format']:
