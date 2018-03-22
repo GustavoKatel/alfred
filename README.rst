@@ -16,7 +16,13 @@ Alfred Cmd
 
 
 
-Aliases and custom commands sharing
+Create portable custom commands and scripts.
+
+How-To
+-------
+
+1 - Create
+===========
 
 
 * Free software: MIT license
