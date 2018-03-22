@@ -32,21 +32,33 @@ class Alfred:
             self._config.setdefault('variables', {})
 
     def run(self, args):
-        if len(args) >= 1 and args[0] == '@help':
-            if len(args) > 1:
-                return self.processHelpCommand(args)
-            else:
-                print('help')
-            return 0
+        if len(args) >= 1:
+            if args[0] == '@help':
+                if len(args) > 1:
+                    return self.processHelpCommand(args)
+                else:
+                    print('help')
+                return 0
+            elif args[0] == '@list':
+                self.listCommands()
+                return 0
 
         return self.processCommand(args)
 
-    def _getCommand(self, args):
-        if len(args) == 0:
-            return 0
+    def listCommands(self):
+        cmds = self._config['command']
 
-        cmdName = args[0]
+        for cmdName in cmds.iterkeys():
+            cmd = self._getCommand(cmdName)
+            print('$ al '+cmdName)
+            print('> {}'.format(cmd['exec']))
+            if 'help' in cmd:
+                print('\t'.format(cmd['help']))
+            print('\tformat: {}'.format(cmd['format']))
+            print('\ttype: {}'.format(cmd['type']))
+            print('')
 
+    def _getCommand(self, cmdName):
         try:
             cmd = self._config['command'][cmdName]
         except KeyError:
@@ -57,7 +69,7 @@ class Alfred:
         return cmd
 
     def processCommand(self, args):
-        cmd = self._getCommand(args)
+        cmd = self._getCommand(args[0])
 
         if cmd['type'] == 'shell':
             self._executeShell(cmd, args[1:])
@@ -67,7 +79,7 @@ class Alfred:
             raise Exception('Invalid command type: {}'.format(cmd['type']))
 
     def processHelpCommand(self, args):
-        cmd = self._getCommand(args[1:])
+        cmd = self._getCommand(args[0])
 
         try:
             print(cmd['help'])
