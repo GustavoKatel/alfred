@@ -35,8 +35,8 @@ setup(
     description="Aliases and custom commands manager and runner",
     entry_points={
         'console_scripts': [
-            'alfred=alfred.cli:main',
-            'al=alfred.cli:main',
+            'alfred=alfredcmd.cli:main',
+            'al=alfredcmd.cli:main',
         ],
     },
     install_requires=requirements,

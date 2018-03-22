@@ -1,6 +1,6 @@
-======
+==========
 Alfred Cmd
-======
+==========
 
 
 .. image:: https://img.shields.io/pypi/v/alfredcmd.svg

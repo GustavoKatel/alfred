@@ -2,7 +2,7 @@
 
 """Console script for alfred."""
 import sys
-from alfred import Alfred
+from alfredcmd import Alfred
 
 
 def main(args=None):

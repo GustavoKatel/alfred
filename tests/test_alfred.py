@@ -8,8 +8,8 @@ import pytest
 import os
 import io
 
-from alfred import Alfred
-from alfred import cli
+from alfredcmd import Alfred
+from alfredcmd import cli
 
 
 @pytest.fixture
