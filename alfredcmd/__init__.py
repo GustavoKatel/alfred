@@ -56,6 +56,7 @@ class Alfred:
                 print('\t'.format(cmd['help']))
             print('\tformat: {}'.format(cmd['format']))
             print('\ttype: {}'.format(cmd['type']))
+            print('\techo: {}'.format(cmd['echo']))
             print('')
 
     def _getCommand(self, cmdName):
@@ -66,6 +67,7 @@ class Alfred:
 
         cmd.setdefault('format', True)
         cmd.setdefault('type', 'shell')
+        cmd.setdefault('echo', False)
         return cmd
 
     def processCommand(self, args):
@@ -138,7 +140,7 @@ class Alfred:
             cmdLine = fmt.format(cmdLine, argsDict)
 
         if 'echo' in cmd and cmd['echo']:
-            print(cmdLine)
+            print('> {}'.format(cmdLine))
 
         process = subprocess.Popen(
             cmdLine,
