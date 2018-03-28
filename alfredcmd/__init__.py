@@ -89,7 +89,7 @@ class Alfred:
             print(cmd['exec'])
 
     def _buildArgDict(self, args):
-        argsDict = defaultdict(unicode)
+        argsDict = defaultdict(str)
         for i, arg in enumerate(args):
             argsDict[i] = arg
 

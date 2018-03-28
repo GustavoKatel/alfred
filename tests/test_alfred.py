@@ -51,7 +51,11 @@ exec="vim"
 
 [command.nofmt]
 exec="echo 'Do not format this str: {str}"
-format=false""")
+format=false
+
+[command.invalidKey]
+exec="echo '{key}' > {@}"
+""")
     p.check()
     return p.strpath
 
@@ -75,25 +79,32 @@ def test_exec_command_with_args(tmpdir, al):
     fname = tmpfile.strpath
     al.run(['execarg', fname])
     assert tmpfile.check()
-    assert '\n'.join(tmpfile.readlines()) == 'dummy \n'
+    assert '\n'.join(tmpfile.readlines()) == 'dummy\n'
 
 def test_formatter_all_args(al, tmpdir):
     tmpfile = tmpdir.join('test.txt')
     fname = tmpfile.strpath
     al.run(['echoAll', '1 2 3 4 5 > ' + fname])
     assert tmpfile.check()
-    assert '\n'.join(tmpfile.readlines()) == '1 2 3 4 5 \n'
+    assert '\n'.join(tmpfile.readlines()) == '1 2 3 4 5\n'
 
 def test_formatter_len_arg(al, tmpdir):
     tmpfile = tmpdir.join('test.txt')
     fname = tmpfile.strpath
     al.run(['echoLen', fname, '1', '2', '3', '4', '5'])
     assert tmpfile.check()
-    assert '\n'.join(tmpfile.readlines()) == '6 \n'
+    assert '\n'.join(tmpfile.readlines()) == '6\n'
 
 def test_formatter_numeric_arg(al, tmpdir):
     tmpfile = tmpdir.join('test.txt')
     fname = tmpfile.strpath
     al.run(['echoInvert', fname, 'a', 'b'])
     assert tmpfile.check()
-    assert '\n'.join(tmpfile.readlines()) == 'b a \n'
+    assert '\n'.join(tmpfile.readlines()) == 'b a\n'
+
+def test_formatter_invalid_key(al, tmpdir):
+    tmpfile = tmpdir.join('test.txt')
+    fname = tmpfile.strpath
+    al.run(['invalidKey', fname])
+    assert tmpfile.check()
+    assert '\n'.join(tmpfile.readlines()) == '\n'
