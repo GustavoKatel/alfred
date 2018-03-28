@@ -15,7 +15,6 @@ import toml
 import subprocess
 import re
 from collections import defaultdict
-import six
 
 class AlfredException(Exception):
     pass
@@ -53,6 +52,9 @@ class Alfred:
                 return 0
             elif args[0] == '@list':
                 self.listCommands()
+                return 0
+            elif args[0] == '@version':
+                print('v{}'.format(__version__))
                 return 0
 
         return self.processCommand(args)
@@ -193,7 +195,7 @@ class Alfred:
         else:
             stdout = self._procFds[1]
 
-        process = subprocess.Popen(
+        process = subprocess.run(
             cmdLine,
             stdin=self._procFds[0],
             stdout=stdout,
@@ -201,20 +203,17 @@ class Alfred:
             shell=True)
 
         if pipeStdout == True:
-            out = process.stdout.readlines()
+            out = process.stdout
         else:
             out = None
 
-        process.communicate()
-        if process.poll() is None:
-            raise AlfredException('Error executing %r' % args)
-        return process, out
+        return out
 
     def executeFunction(self, funcName, args):
         rfd, wfd = os.pipe()
         func = self._getFunction(funcName)
-        proc, out = self._spawnShell(func['exec'], pipeStdout=True)
-        out = '\n'.join(out)
+        out = self._spawnShell(func['exec'], pipeStdout=True)
+        out = ''.join(out)
         # remove trailing line-break
         out = out[:-1]
         return out
@@ -225,7 +224,7 @@ class AlfredFormatter(string.Formatter):
 
     def get_value(self, key, args, kwargs):
         # function
-        if isinstance(key, six.string_types):
+        if isinstance(key, str):
             match = re.match('(\w+)\((.*)\)', key)
             if match is not None:
                 funcArgs = match.group(2).split(',')
