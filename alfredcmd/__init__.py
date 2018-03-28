@@ -18,12 +18,11 @@ from collections import defaultdict
 class AlfredException(Exception):
     pass
 
-
 class Alfred:
     def __init__(self, config=None, procFds=(sys.stdin, sys.stdout, sys.stderr)):
         if config is None:
             home = os.path.expanduser("~")
-            self._configFile = os.path.join(home, '.alfred.toml')
+            self._configFile = os.path.join(home, '.alfred', 'alfred.toml')
         else:
             self._configFile = config
         self._loadConfig()
@@ -74,7 +73,7 @@ class Alfred:
         try:
             cmd = self._config['command'][cmdName]
         except KeyError:
-            raise AlfredException('no command "{}"\n\nYou can create it in ~/.alfred.toml'.format(cmdName))
+            raise AlfredException('no command "{}"\n\nYou can create it in ~/.alfred/alfred.toml'.format(cmdName))
 
         cmd.setdefault('format', True)
         cmd.setdefault('type', 'shell')
