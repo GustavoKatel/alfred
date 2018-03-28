@@ -20,6 +20,9 @@ mode='debug'
 test=true
 overridenKey='abc'
 
+[function.func1]
+exec="echo test1"
+
 [command.echoAll]
 exec="echo {@}"
 help="This is just a test"
@@ -145,3 +148,10 @@ def test_overriden_key(al, tmpdir):
     al.run(['over', fname, '--overridenKey=123'])
     assert tmpfile.check()
     assert '\n'.join(tmpfile.readlines()) == 'value=123\n'
+
+def test_load_func(al):
+    assert al._config['function']['func1']
+
+def test_execute_func(al):
+    out = al.executeFunction('func1', [])
+    assert out == 'test1'

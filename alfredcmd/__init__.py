@@ -13,7 +13,9 @@ import io
 import string
 import toml
 import subprocess
+import re
 from collections import defaultdict
+import six
 
 class AlfredException(Exception):
     pass
@@ -79,6 +81,17 @@ class Alfred:
         cmd.setdefault('type', 'shell')
         cmd.setdefault('echo', False)
         return cmd
+
+    def _getFunction(self, funcName):
+        try:
+            func = self._config['function'][funcName]
+        except KeyError:
+            raise AlfredException('no function "{}"\n\nYou can create it in ~/.alfred/alfred.toml'.format(funcName))
+
+        func.setdefault('format', True)
+        func.setdefault('type', 'shell')
+        func.setdefault('echo', False)
+        return func
 
     def processCommand(self, args):
         cmd = self._getCommand(args[0])
@@ -159,7 +172,7 @@ class Alfred:
 
         cmdLine = cmd['exec']
         if 'format' in cmd and cmd['format']:
-            fmt = AlfredFormatter()
+            fmt = AlfredFormatter(self)
             cmdLine = fmt.format(cmdLine, argsDict)
 
         if 'echo' in cmd and cmd['echo']:
@@ -172,17 +185,49 @@ class Alfred:
                 fh.write(cmdLine)
             cmdLine = '{} {}'.format(self._defaultShellExecutor, scriptfile)
 
+        self._spawnShell(cmdLine)
+
+    def _spawnShell(self, cmdLine, pipeStdout=False):
+        if pipeStdout == True:
+            stdout = subprocess.PIPE
+        else:
+            stdout = self._procFds[1]
+
         process = subprocess.Popen(
             cmdLine,
             stdin=self._procFds[0],
-            stdout=self._procFds[1],
+            stdout=stdout,
             stderr=self._procFds[2],
             shell=True)
+
+        if pipeStdout == True:
+            out = process.stdout.readlines()
+        else:
+            out = None
+
         process.communicate()
         if process.poll() is None:
             raise AlfredException('Error executing %r' % args)
+        return process, out
 
+    def executeFunction(self, funcName, args):
+        rfd, wfd = os.pipe()
+        func = self._getFunction(funcName)
+        proc, out = self._spawnShell(func['exec'], pipeStdout=True)
+        out = '\n'.join(out)
+        # remove trailing line-break
+        out = out[:-1]
+        return out
 
 class AlfredFormatter(string.Formatter):
+    def __init__(self, alfred):
+        self.alfred = alfred
+
     def get_value(self, key, args, kwargs):
+        # function
+        if isinstance(key, six.string_types):
+            match = re.match('(\w+)\((.*)\)', key)
+            if match is not None:
+                funcArgs = match.group(2).split(',')
+                return self.alfred.executeFunction(match.group(1), funcArgs)
         return args[0][key]
