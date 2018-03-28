@@ -29,6 +29,8 @@ class Alfred:
         self._loadConfig()
         self._procFds = procFds
 
+        self._defaultShellExecutor = 'bash'
+
     def _loadConfig(self):
         try:
             with io.open(self._configFile, mode='r', encoding='utf-8') as f:
@@ -134,7 +136,6 @@ class Alfred:
         except Exception as e:
             raise AlfredException('Error trying to execute module', e)
 
-
     def _executeShell(self, cmd, args):
         if 'type' in cmd and not cmd['type'] == 'shell':
             raise AlfredException('Invalid command type. Expected "shell" Received: {}'.format(cmd['type']))
@@ -148,6 +149,13 @@ class Alfred:
 
         if 'echo' in cmd and cmd['echo']:
             print('> {}'.format(cmdLine))
+
+        if cmdLine.count('\n') > 0:
+            import tempfile
+            fhos, scriptfile = tempfile.mkstemp(prefix='alfred-tmp-')
+            with io.open(fhos, mode='w') as fh:
+                fh.write(cmdLine)
+            cmdLine = '{} {}'.format(self._defaultShellExecutor, scriptfile)
 
         process = subprocess.Popen(
             cmdLine,
