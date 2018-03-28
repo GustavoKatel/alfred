@@ -14,7 +14,7 @@ def main(args=None):
     try:
         return al.run(args)
     except AlfredException as e:
-        print('? {}'.format(e.message))
+        print('? {}'.format(e))
 
 
 if __name__ == "__main__":
