@@ -15,6 +15,9 @@ import toml
 import subprocess
 from collections import defaultdict
 
+class AlfredException(Exception):
+    pass
+
 
 class Alfred:
     def __init__(self, config=None, procFds=(sys.stdin, sys.stdout, sys.stderr)):
@@ -27,9 +30,13 @@ class Alfred:
         self._procFds = procFds
 
     def _loadConfig(self):
-        with io.open(self._configFile, mode='r', encoding='utf-8') as f:
-            self._config = toml.load(f)
-            self._config.setdefault('variables', {})
+        try:
+            with io.open(self._configFile, mode='r', encoding='utf-8') as f:
+                self._config = toml.load(f)
+        except IOError as e:
+            # config file not found. Use defaults
+            self._config = dict()
+        self._config.setdefault('variables', {})
 
     def run(self, args):
         if len(args) >= 1:
@@ -63,7 +70,7 @@ class Alfred:
         try:
             cmd = self._config['command'][cmdName]
         except KeyError:
-            raise Exception('no command')
+            raise AlfredException('no command "{}"\n\nYou can create it in ~/.alfred.toml'.format(cmdName))
 
         cmd.setdefault('format', True)
         cmd.setdefault('type', 'shell')
@@ -78,7 +85,7 @@ class Alfred:
         elif cmd['type'] == 'python':
             self._executePy(cmd, args[1:])
         else:
-            raise Exception('Invalid command type: {}'.format(cmd['type']))
+            raise AlfredException('Invalid command type: {}'.format(cmd['type']))
 
     def processHelpCommand(self, args):
         cmd = self._getCommand(args[0])
@@ -105,7 +112,7 @@ class Alfred:
 
     def _executePy(self, cmd, args):
         if 'type' in cmd and not cmd['type'] == 'python':
-            raise Exception('Invalid command type. Expected "python" Received: {}'.format(cmd['type']))
+            raise AlfredException('Invalid command type. Expected "python" Received: {}'.format(cmd['type']))
 
         argsDict = self._buildArgDict(args)
 
@@ -113,24 +120,24 @@ class Alfred:
         try:
             filename, funcname = cmdLine.split('::')
         except ValueError:
-            raise Exception('Invalid execution of python script "{}". Please use the format: "script.py::FuncName"'.format(cmdLine))
+            raise AlfredException('Invalid execution of python script "{}". Please use the format: "script.py::FuncName"'.format(cmdLine))
 
         filename = os.path.expanduser(filename)
         import module_importer
         module = module_importer.importModuleFromFile('script', filename)
         if not hasattr(module, funcname):
-            raise Exception('Function "{}" was not found in module "{}"'.format(funcname, filename))
+            raise AlfredException('Function "{}" was not found in module "{}"'.format(funcname, filename))
 
         try:
             func = getattr(module, funcname)
             func(argsDict)
         except Exception as e:
-            raise Exception('Error trying to execute module', e)
+            raise AlfredException('Error trying to execute module', e)
 
 
     def _executeShell(self, cmd, args):
         if 'type' in cmd and not cmd['type'] == 'shell':
-            raise Exception('Invalid command type. Expected "shell" Received: {}'.format(cmd['type']))
+            raise AlfredException('Invalid command type. Expected "shell" Received: {}'.format(cmd['type']))
 
         argsDict = self._buildArgDict(args)
 
@@ -150,7 +157,7 @@ class Alfred:
             shell=True)
         process.communicate()
         if process.poll() is None:
-            raise Exception('Error executing %r' % args)
+            raise AlfredException('Error executing %r' % args)
 
 
 class AlfredFormatter(string.Formatter):

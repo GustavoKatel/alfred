@@ -8,7 +8,7 @@ import pytest
 import os
 import io
 
-from alfredcmd import Alfred
+from alfredcmd import Alfred, AlfredException
 from alfredcmd import cli
 
 
@@ -108,3 +108,12 @@ def test_formatter_invalid_key(al, tmpdir):
     al.run(['invalidKey', fname])
     assert tmpfile.check()
     assert '\n'.join(tmpfile.readlines()) == '\n'
+
+def test_no_config_file(tmpdir):
+    tmpfile = tmpdir.join('test.txt')
+    al = Alfred(config=tmpfile.strpath)
+    assert al._config is not None
+
+def test_no_command(al):
+    with pytest.raises(AlfredException):
+        al.run(['noCmd'])

@@ -2,7 +2,7 @@
 
 """Console script for alfred."""
 import sys
-from alfredcmd import Alfred
+from alfredcmd import Alfred, AlfredException
 
 
 def main(args=None):
@@ -11,7 +11,10 @@ def main(args=None):
         args = sys.argv[1:]
 
     al = Alfred()
-    return al.run(args)
+    try:
+        return al.run(args)
+    except AlfredException as e:
+        print('? {}'.format(e.message))
 
 
 if __name__ == "__main__":
