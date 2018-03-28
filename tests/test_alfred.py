@@ -18,6 +18,7 @@ def configfile(tmpdir):
     p.write("""[variables]
 mode='debug'
 test=true
+overridenKey='abc'
 
 [command.echoAll]
 exec="echo {@}"
@@ -55,6 +56,12 @@ format=false
 
 [command.invalidKey]
 exec="echo '{key}' > {@}"
+
+[command.nammed]
+exec='echo value={myKey} > {0}'
+
+[command.over]
+exec='echo value={overridenKey} > {0}'
 """)
     p.check()
     return p.strpath
@@ -117,3 +124,24 @@ def test_no_config_file(tmpdir):
 def test_no_command(al):
     with pytest.raises(AlfredException):
         al.run(['noCmd'])
+
+def test_nammed_key(al, tmpdir):
+    tmpfile = tmpdir.join('test.txt')
+    fname = tmpfile.strpath
+    al.run(['nammed', fname, '--myKey=123'])
+    assert tmpfile.check()
+    assert '\n'.join(tmpfile.readlines()) == 'value=123\n'
+
+def test_nammed_bool_key(al, tmpdir):
+    tmpfile = tmpdir.join('test.txt')
+    fname = tmpfile.strpath
+    al.run(['nammed', fname, '--myKey'])
+    assert tmpfile.check()
+    assert '\n'.join(tmpfile.readlines()) == 'value=True\n'
+
+def test_overriden_key(al, tmpdir):
+    tmpfile = tmpdir.join('test.txt')
+    fname = tmpfile.strpath
+    al.run(['over', fname, '--overridenKey=123'])
+    assert tmpfile.check()
+    assert '\n'.join(tmpfile.readlines()) == 'value=123\n'

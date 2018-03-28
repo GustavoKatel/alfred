@@ -99,12 +99,26 @@ class Alfred:
 
     def _buildArgDict(self, args):
         argsDict = defaultdict(str)
-        for i, arg in enumerate(args):
-            argsDict[i] = arg
-
         # variables
         for key, value in self._config['variables'].items():
             argsDict[key] = value
+
+        positionalIndex = 0
+        for i, arg in enumerate(args):
+
+            if arg.startswith('--'):
+                # Make sure we have a key
+                if len(arg) > 2:
+                    pack = arg[2:].split('=')
+                    if len(pack) == 1:
+                        # No value associated. Assume this is a bool
+                        argsDict[pack[0]] = True
+                    else:
+                        # Key/value pair
+                        argsDict[pack[0]] = pack[1]
+            else:
+                argsDict[positionalIndex] = arg
+                positionalIndex += 1
 
         argsDict['@'] = ' '.join(args)
         argsDict['#'] = len(args)
