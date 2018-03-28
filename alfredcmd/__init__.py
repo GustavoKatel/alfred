@@ -57,7 +57,7 @@ class Alfred:
     def listCommands(self):
         cmds = self._config['command']
 
-        for cmdName in cmds.iterkeys():
+        for cmdName in cmds.keys():
             cmd = self._getCommand(cmdName)
             print('$ al '+cmdName)
             print('> {}'.format(cmd['exec']))
