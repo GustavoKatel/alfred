@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 __author__ = """Gustavo Sampaio"""
 __email__ = 'gbritosampaio@gmail.com'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 import os
 import sys
