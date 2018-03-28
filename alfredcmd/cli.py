@@ -10,8 +10,8 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
 
-    al = Alfred()
     try:
+        al = Alfred()
         return al.run(args)
     except AlfredException as e:
         print('? {}'.format(e))

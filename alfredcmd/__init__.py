@@ -38,6 +38,8 @@ class Alfred:
         except IOError as e:
             # config file not found. Use defaults
             self._config = dict()
+        except toml.TomlDecodeError as e:
+            raise AlfredException('invalid config file')
         self._config.setdefault('variables', {})
 
     def run(self, args):
