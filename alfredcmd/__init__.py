@@ -203,7 +203,7 @@ class Alfred:
             shell=True)
 
         if pipeStdout == True:
-            out = process.stdout
+            out = str(process.stdout, 'utf-8')
         else:
             out = None
 
@@ -213,7 +213,6 @@ class Alfred:
         rfd, wfd = os.pipe()
         func = self._getFunction(funcName)
         out = self._spawnShell(func['exec'], pipeStdout=True)
-        out = ''.join(out)
         # remove trailing line-break
         out = out[:-1]
         return out
