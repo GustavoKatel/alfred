@@ -82,7 +82,7 @@ Predefined commands that will be executed by Alfred
 
 Commands are defined like this
 
-.. code-block:: console
+.. code-block:: toml
 
     [command.COMMAND_NAME]
     exec="EXECUTION_LINE"
@@ -111,7 +111,7 @@ Functions
 
 Functions can be created to enhance command execution during format time and are defined like this:
 
-.. code-block:: console
+.. code-block:: toml
 
     [function.FUNCTION_NAME]
     exec="EXECUTION_LINE"
