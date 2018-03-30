@@ -23,8 +23,8 @@ Usage
 
 All the config are located in :code:`$USER/.alfred/alfred.toml`
 
-Example config
-~~~~~~~~~~~~~~
+Config
+~~~~~~
 
 .. code-block:: toml
 
@@ -46,7 +46,93 @@ Example config
     [command.b]
     exec="echo {branch()}"
 
+    [command.pythonCall]
+    exec="~/.alfred/myscript.py::myFunction"
+    type="python"
 
+Run
+~~~
+
+.. code-block:: console
+
+    $ alfred st
+    $ al cc
+
+
+Variables
+~~~~~~~~~
+
+Variables are predefined values that can be injected in commands and functions
+
+Example:
+
+.. code-block:: toml
+
+    [variables]
+    mode="debug"
+
+    [command.print]
+    exec="echo {mode}"
+
+
+Commands
+~~~~~~~~
+
+Predefined commands that will be executed by Alfred
+
+Commands are defined like this
+
+.. code-block:: console
+
+    [command.COMMAND_NAME]
+    exec="EXECUTION_LINE"
+    type="shell"
+    format=true
+    echo=false
+    help="HELP INFO"
+
+Where:
+- **COMMAND_NAME** is the alias that Alfred will use to identify that command in the cli
+
+- **EXECUTION_LINE** is the code that will be called. Alfred accepts multiline entries, which
+will be wrapped in a script file and executed with the default shell executor.
+
+- **type** the type of the command. Alfred currently accepts `shell` and `python` command types
+
+- **format** marks if the instance should apply the formatter in the exec line or not.
+If false, the placeholders `{}` will not be interpreted
+
+- **echo** marks if the instance should print the command that will be executed before executing it
+
+- **help** a descriptive message that will be showed in `alfred @list`
+
+Functions
+~~~~~~~~~
+
+Functions can be created to enhance command execution during format time and are defined like this:
+
+.. code-block:: console
+
+    [function.FUNCTION_NAME]
+    exec="EXECUTION_LINE"
+    format=true
+
+Where:
+
+- **FUNCTION_NAME** is the alias that Alfred will use to identify that function in the formatter
+
+- **EXECUTION_LINE** is the code that will be called. Currently Alfred only accepts one-line shell commands in functions.
+
+- **format** marks if the instance should apply the formatter in the exec line or not.
+If false, the placeholders `{}` will not be interpreted
+
+
+Built-in Alfred commands
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- `al[fred] @help` Show help
+- `al[fred] @list` List all commands
+- `al[fred] @version` Show version
 
 Installation
 ------------
