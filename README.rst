@@ -18,8 +18,11 @@ Alfred Cmd
 
 Create portable custom commands and scripts.
 
-How-To
+Installation
 -------
+
+.. include:: docs/installation.rst
+
 
 1 - Create
 ===========

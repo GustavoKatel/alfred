@@ -12,7 +12,7 @@ To install Alfred, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install alfred
+    $ pip install alfredcmd
 
 This is the preferred method to install Alfred, as it will always install the most recent stable release.
 
@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/GustavoKatel/alfred
+    $ git clone git://github.com/GustavoKatel/alfredcmd
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/GustavoKatel/alfred/tarball/master
+    $ curl  -OL https://github.com/GustavoKatel/alfredcmd/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/GustavoKatel/alfred
-.. _tarball: https://github.com/GustavoKatel/alfred/tarball/master
+.. _Github repo: https://github.com/GustavoKatel/alfredcmd
+.. _tarball: https://github.com/GustavoKatel/alfredcmd/tarball/master
