@@ -18,6 +18,36 @@ Alfred Cmd
 
 Create portable custom commands and scripts.
 
+Usage
+------
+
+All the config are located in :code:`$USER/.alfred/alfred.toml`
+
+Example config
+~~~~~~~~~~~~~~
+
+.. code-block:: toml
+
+    [variables]
+    mode="debug"
+
+    [function.branch]
+    exec="git rev-parse --abbrev-ref HEAD"
+
+    [command.st]
+    exec="git status"
+
+    [command.cc]
+    exec="git commit -a {@}"
+
+    [command.push]
+    exec="git push {@}"
+
+    [command.b]
+    exec="echo {branch()}"
+
+
+
 Installation
 ------------
 
