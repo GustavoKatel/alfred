@@ -18,6 +18,8 @@ Alfred Cmd
 
 Create portable custom commands and scripts.
 
+This is currently in beta, but usable.
+
 Usage
 ------
 
