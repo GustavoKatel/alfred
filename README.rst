@@ -21,7 +21,7 @@ Create portable custom commands and scripts.
 Installation
 -------
 
-.. include:: docs/installation.rst
+.. include:: ./docs/installation.rst
 
 
 1 - Create
