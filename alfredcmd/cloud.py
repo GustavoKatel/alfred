@@ -5,6 +5,9 @@ import keyrings.alt
 import datetime
 import os
 import hashlib
+import base64
+import tarfile
+import tempfile
 
 from alfredcmd.alfred_exception import AlfredException
 
@@ -21,13 +24,16 @@ class Cloud(object):
 
     def __init__(self):
         # The pycrypto encrypted keyring asks for a password in every launch
-        if isinstance(keyring.get_keyring(), keyrings.alt.file.EncryptedKeyring):
-            keyring.set_keyring(keyrings.alt.file.PlaintextKeyring())
+        # if isinstance(keyring.get_keyring(), keyrings.alt.file.EncryptedKeyring):
+        keyring.set_keyring(keyrings.alt.file.PlaintextKeyring())
 
         self._firebase = pyrebase.initialize_app(config)
 
         self._user = None
         self._tokenCreation = None
+
+        # self._tempDir = tempfile.TemporaryDirectory()
+        self._tempDir = tempfile.mkdtemp()
 
     def getUser(self):
         return self._user
@@ -113,21 +119,30 @@ class Cloud(object):
 
         # sync assets
         if 'sync' in config and 'assets' in config['sync']:
-            for fname in config['sync']['assets']:
-                fname = os.path.expanduser(fname)
-                if not os.path.exists(fname):
-                    print('{} does not exist. Skipping...'.format(fname))
-                elif os.path.isdir(fname):
-                    self._syncPath('.', fname, rootPath+'/assets', storage, token)
-                elif os.path.isfile(fname):
-                    self._syncPath('.', fname, rootPath+'/assets', storage, token)
+            print('syncing assets...')
+            tmpNew = os.path.join(self._tempDir, 'assets.tar.gz')
+            with tarfile.open(name=tmpNew, mode='w') as tar:
+                for fname in config['sync']['assets']:
+                    fname = os.path.expanduser(fname)
+                    if not os.path.exists(fname):
+                        print('{} does not exist. Skipping...'.format(fname))
+                    else:
+                        tar.add(fname)
+            try:
+                remoteProps = storage.child(rootPath).child('assets.tar.gz').get(token)
+                remoteHash = base64.b64decode(remoteProps['md5Hash']).hex()
+                print(tmpNew)
+                localHash = self._md5FromFile(tmpNew)
 
+                print(remoteHash)
+                print(localHash)
+                if localHash == remoteHash:
+                    print('no changes. All sync')
+                else:
+                    storage.child(rootPath).child('assets.tar.gz').put(tmpNew, token)
+            except Exception as e:
+                raise AlfredException(e)
 
-    def _syncPath(self, remotePath, absPath, rootPath, storage, token):
-        for (dirpath, _, filenames) in os.walk(absPath):
-            for fname in filenames:
-                absFileName = os.path.join(dirpath, fname)
-                self._syncFile(absFileName, absFileName, rootPath, storage, token, encodeRemotePath=True)
 
     def _syncFile(self, remotePath, absPath, rootPath, storage, token, encodeRemotePath=False):
 
@@ -139,20 +154,33 @@ class Cloud(object):
         else:
             remotePathEnc = remotePath
 
+        # rmoteUpdatedTime = storage.child(rootPath).child(remotePathEnc).get(token)['updated']
+        # rmoteUpdatedTime = datetime.datetime.strptime(rmoteUpdatedTime, "%Y-%m-%d %H:%M:%S.%f")
+        # updated = datetime.fromtimestamp(updated)
+
         if not os.path.exists(absPath):
             try:
                 print('downloading {} to {} ...'.format(remotePath, absPath))
-                storage.child(rootPath).child(remotePathEnc).get(token)
                 storage.child(rootPath).child(remotePathEnc).download(absPath, token)
                 return
             except Exception as e:
                 raise self._parseException(e, absPath)
+
 
         try:
             print('uploading {} ...'.format(absPath))
             storage.child(rootPath).child(remotePathEnc).put(absPath, token)
         except Exception as e:
             raise self._parseException(e, remotePath)
+
+
+    def _md5FromFile(self, fname):
+        hash_md5 = hashlib.md5()
+        with open(fname, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+
 
     def _hasValidToken(self):
         creation = self._getCredentials()[2]
@@ -194,6 +222,8 @@ class Cloud(object):
     def _parseException(self, e, *args, **kwargs):
         if 'INVALID_EMAIL' in str(e):
             return AlfredException('Invalid email')
+        if 'INVALID_PASSWORD' in str(e):
+            return AlfredException('Invalid password')
         elif 'MISSING_EMAIL' in str(e):
             return AlfredException('Missing email')
         elif 'EMAIL_NOT_FOUND' in str(e):
