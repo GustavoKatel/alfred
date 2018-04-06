@@ -1,0 +1,2 @@
+class AlfredException(Exception):
+    pass

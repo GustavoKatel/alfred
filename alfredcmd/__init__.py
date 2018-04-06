@@ -16,8 +16,8 @@ import subprocess
 import re
 from collections import defaultdict
 
-class AlfredException(Exception):
-    pass
+from alfredcmd.alfred_exception import AlfredException
+from alfredcmd.cloud import Cloud
 
 class Alfred:
     def __init__(self, config=None, procFds=(sys.stdin, sys.stdout, sys.stderr)):
@@ -31,14 +31,16 @@ class Alfred:
 
         self._defaultShellExecutor = 'bash'
 
+        self._cloud = Cloud()
+
     def _loadConfig(self):
         try:
             with io.open(self._configFile, mode='r', encoding='utf-8') as f:
                 self._config = toml.load(f)
-        except IOError as e:
+        except IOError:
             # config file not found. Use defaults
             self._config = dict()
-        except toml.TomlDecodeError as e:
+        except toml.TomlDecodeError:
             raise AlfredException('invalid config file')
         self._config.setdefault('variables', {})
 
@@ -56,6 +58,18 @@ class Alfred:
             elif args[0] == '@version':
                 print('v{}'.format(__version__))
                 return 0
+            elif args[0] == '@login':
+                self._cloud.login()
+                return 0
+            elif args[0] == '@logout':
+                self._cloud.logout()
+                return 0
+            elif args[0] == '@register':
+                self._cloud.register()
+                return 0
+            elif args[0] == '@sync':
+                self._cloud.sync(self._config, self._configFile)
+                return 0
 
         return self.processCommand(args)
 
@@ -67,7 +81,7 @@ class Alfred:
             print('$ al '+cmdName)
             print('> {}'.format(cmd['exec']))
             if 'help' in cmd:
-                print('\t'.format(cmd['help']))
+                print('{}\t'.format(cmd['help']))
             print('\tformat: {}'.format(cmd['format']))
             print('\ttype: {}'.format(cmd['type']))
             print('\techo: {}'.format(cmd['echo']))

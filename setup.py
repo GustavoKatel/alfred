@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['toml>=0.9.4',]
+requirements = ['toml>=0.9.4','pyrebase>=3.0.27', 'keyring>=12.0.0', 'keyrings.alt>=3.0']
 
 setup_requirements = ['pytest-runner', ]
 

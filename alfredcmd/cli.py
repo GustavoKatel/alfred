@@ -14,7 +14,8 @@ def main(args=None):
         al = Alfred()
         return al.run(args)
     except AlfredException as e:
-        print('? {}'.format(e))
+        print('X {}'.format(e))
+        return 1
 
 
 if __name__ == "__main__":
