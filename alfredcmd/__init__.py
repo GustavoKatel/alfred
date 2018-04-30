@@ -31,7 +31,7 @@ class Alfred:
 
         self._defaultShellExecutor = 'bash'
 
-        self._cloud = Cloud()
+        self._cloud = Cloud(self._config)
 
     def _loadConfig(self):
         try:
@@ -61,14 +61,8 @@ class Alfred:
             elif args[0] == '@login':
                 self._cloud.login()
                 return 0
-            elif args[0] == '@logout':
-                self._cloud.logout()
-                return 0
-            elif args[0] == '@register':
-                self._cloud.register()
-                return 0
             elif args[0] == '@sync':
-                self._cloud.sync(self._config, self._configFile)
+                self._cloud.sync(self._configFile)
                 return 0
 
         return self.processCommand(args)
