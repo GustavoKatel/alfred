@@ -1,26 +1,31 @@
 # -*- coding: utf-8 -*-
-from alfredcmd.cloud import CloudProvider
+from alfredcmd.cloud import CloudProvider, CloudException
+from alfredcmd import AlfredException
+import os
+from dropbox.exceptions import ApiError, AuthError
+import dropbox
+from dropbox.files import WriteMode
 
 
 class CloudProviderDropbox(CloudProvider):
-    def __init__(self):
-        super().__init__('dropbox')
+    def __init__(self, config):
+        super().__init__('dropbox', config)
 
-    def get_login_url(self, redirect_callback_url):
-        '''
-        Return this provider login url. Redirect callback url is provided
-        to the oath to make sure alfred register the login
+        env_name = 'AL_DROPBOX_ACCESS_TOKEN'
+        if 'dropbox' in config and 'access_token_env_name' in config['dropbox']:
+            env_name = config['dropbox'].get('access_token_env_name', 'AL_DROPBOX_ACCESS_TOKEN')
 
-        @param redirect_callback_url str
-        '''
-        return 'dropbox.com/?callback={}'.format(redirect_callback_url)
+        self._token = os.environ.get(env_name, None)
+        if self._token is None:
+            raise AlfredException('Please set Dropbox token in the environment variable {}'.format(env_name))
 
+        self._dbx = dropbox.Dropbox(self._token)
 
-    def on_login_callback(self, data):
-        '''
-        Called when the user finished the login
-        '''
-        pass
+        # # Check that the access token is valid
+        # try:
+        #     self._dbx.users_get_current_account()
+        # except AuthError as err:
+        #     raise CloudException('Invalid Dropbox Token')
 
 
     def is_loggedin(self):
@@ -28,7 +33,7 @@ class CloudProviderDropbox(CloudProvider):
         Return True if this provider has a valid login state
         @return bool
         '''
-        return True
+        return self._token is not None
 
 
     def get_file_metadata(self, filename):

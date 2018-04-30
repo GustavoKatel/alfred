@@ -31,7 +31,7 @@ class Cloud(object):
 
             if provider_name == 'dropbox':
                 from alfredcmd.cloud.providers import CloudProviderDropbox
-                self._provider = CloudProviderDropbox()
+                self._provider = CloudProviderDropbox(self._config)
             else:
                 self._provider = None
 
@@ -79,6 +79,8 @@ class Cloud(object):
 
 
     def _sync_file(self, filename, abs_name):
+        remote_metadata = self._provider.get_file_metadata(filename)
+        print(remote_metadata)
         print('Syncing {} ({})...'.format(filename, abs_name))
 
 

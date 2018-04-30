@@ -12,8 +12,9 @@ class CloudProvider(ABC):
     '''
     _name = ''
 
-    def __init__(self, name):
+    def __init__(self, name, config):
         self.name = name
+        self._config = config
 
         # The pycrypto encrypted keyring asks for a password in every launch
         # if isinstance(keyring.get_keyring(), keyrings.alt.file.EncryptedKeyring):
@@ -30,7 +31,6 @@ class CloudProvider(ABC):
         self._name = n
 
 
-    @abstractmethod
     def get_login_url(self, redirect_callback_url):
         '''
         Return this provider login url. Redirect callback url is provided
@@ -41,7 +41,6 @@ class CloudProvider(ABC):
         pass
 
 
-    @abstractmethod
     def on_login_callback(self, data):
         '''
         Called when the user finished the login
